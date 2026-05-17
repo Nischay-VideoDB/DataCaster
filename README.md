@@ -10,13 +10,16 @@
 </p>
 
 <p align="center">
-
-https://github.com/sahil-sharma-50/DataCaster/assets/PLACEHOLDER_USER_ID/PLACEHOLDER_VIDEO_ID.mp4
-
-</p>
-
-<p align="center">
-  <em>If the video doesn't play inline, <a href="https://youtu.be/lR99z0Jel-4">watch the 90-second demo on YouTube ▶</a></em>
+  <a href="https://youtu.be/lR99z0Jel-4">
+    <img 
+      src="https://img.youtube.com/vi/lR99z0Jel-4/maxresdefault.jpg" 
+      alt="DataCaster demo video" 
+      width="100%" 
+      style="max-width: 1000px;"
+    />
+  </a>
+  <br/>
+  <em>▶ Click to watch the 6 min demo on YouTube</em>
 </p>
 
 ---
