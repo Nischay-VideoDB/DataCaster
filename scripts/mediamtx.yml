@@ -1,0 +1,33 @@
+# Minimal mediamtx config for DataCaster local RTMP loop.
+# Overrides default ports to avoid collisions on this machine.
+
+logLevel: info
+logDestinations: [stdout]
+
+# RTMP — primary protocol used by DataCaster (ffmpeg publishes here)
+rtmp: yes
+rtmpAddress: :1935
+
+# RTSP — secondary, kept on default port (no collision observed)
+rtsp: yes
+rtspAddress: :8554
+
+# HLS — moved off :8888 (occupied locally). DataCaster doesn't consume HLS
+# directly, but mediamtx serves it free, so keep it enabled on a free port.
+hls: yes
+hlsAddress: :18888
+
+# WebRTC — not used by DataCaster; disable to avoid extra port reservations
+webrtc: no
+
+# SRT — not used
+srt: no
+
+# API — not used
+api: no
+metrics: no
+pprof: no
+playback: no
+
+paths:
+  all_others:

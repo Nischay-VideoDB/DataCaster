@@ -1,0 +1,37 @@
+# Backend build context (root of repo). The frontend has its own
+# .dockerignore inside frontend/.
+
+.git
+.gitignore
+.venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Frontend tree — backend image doesn't need it (frontend has its own image)
+frontend/
+
+# Editor / OS
+.DS_Store
+.vscode/
+.idea/
+
+# Local-only stuff
+.env
+.env.local
+*.env
+datacaster.db
+*.db
+TODO.md
+SUBMISSION.md
+
+# Plan files / docs / logs are not needed in the runtime image.
+# NOTE: do NOT exclude .agents/ — backend/scripts/ws_listener_launcher.py
+# loads the real skill file from .agents/skills/videodb/scripts/ws_listener.py.
+# .claude/ is a symlink to .agents/, fine to exclude.
+.claude/
+docs/
+*.log
