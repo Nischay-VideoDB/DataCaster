@@ -43,7 +43,7 @@ on `:3000`. Nginx proxies everything under `/api/*` to the FastAPI backend on
 `:8000`. The backend connects to VideoDB's hosted API for the actual video
 work — uploading, scene indexing, semantic search, voice generation. Events
 classified from VideoDB's scene-index JSON are persisted to a local SQLite
-file (`datacaster.db`) and pushed to subscribers over Server-Sent Events.
+file (`./data/datacaster.db`) and pushed to subscribers over Server-Sent Events.
 
 For the longer version see [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
@@ -68,7 +68,7 @@ already cached — see "Persistence model" below).
 
 | Location | Contents | Cleared by |
 |---|---|---|
-| `./datacaster.db` (SQLite, **bind-mounted** into container at `/app/datacaster.db`) | events, commentary, highlights, `pipeline_state` KV (vod_offset, vod_anchor, started_at) | `db.clear_events_for_video(id)` (Resync), or `rm ./datacaster.db` for a full wipe |
+| `./data/datacaster.db` (SQLite, host file via directory bind-mount at `/app/data/`) | events, commentary, highlights, `pipeline_state` KV (vod_offset, vod_anchor, started_at) | `db.clear_events_for_video(id)` (Resync), or `rm ./data/datacaster.db` for a full wipe |
 | `/tmp/videodb_events.jsonl` | Raw WebSocket events from VideoDB (RTStream path only) | Container restart |
 | `/tmp/videodb_ws_id` | The active WS connection id | Container restart |
 | `/tmp/datacaster_active_sandboxes.txt` | Sidecar list of allocated sandbox ids | Cleared as ids stop / on startup sweep |
@@ -96,7 +96,7 @@ under the current prompt.
 
 `/api/end_session` stops the pipeline + clears in-memory state + releases
 the sandbox, but **does NOT wipe the events table**. Events stay
-queryable per `video_id` until Resync or `rm ./datacaster.db`.
+queryable per `video_id` until Resync or `rm ./data/datacaster.db`.
 
 ---
 
@@ -154,7 +154,7 @@ curl -s localhost:8000/api/videos | jq   # videos in your VideoDB collection
 docker compose restart backend
 
 # Inspect persisted events
-sqlite3 datacaster.db "SELECT video_id, COUNT(*) FROM events GROUP BY video_id;"
+sqlite3 data/datacaster.db "SELECT video_id, COUNT(*) FROM events GROUP BY video_id;"
 
 # End-to-end test (six phases — see `test-datacaster.py` docstring)
 python test-datacaster.py --phase A      # idle suite, ~10s, no API spend
@@ -238,7 +238,7 @@ Default config (`USE_SANDBOX=true`, tier `small`):
 
 A 33-min YouTube source: ~$2-3 in credits + the sandbox-hour rate while
 the session is active. **Re-running the same video is free** — events
-cached by `video_id` in the bind-mounted `./datacaster.db` rehydrate
+cached by `video_id` in the bind-mounted `./data/datacaster.db` rehydrate
 instantly with zero SDK calls.
 
 Drop to `USE_SANDBOX=false` to skip the sandbox layer entirely and use

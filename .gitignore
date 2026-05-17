@@ -25,6 +25,7 @@ node_modules/
 .claude/settings.local.json
 
 # runtime data
+data/
 datacaster.db
 *.sqlite
 *.sqlite3

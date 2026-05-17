@@ -32,7 +32,7 @@ MTX_LOG = LOG_DIR / "mediamtx.log"
 PIPELINE_LOG = LOG_DIR / "pipeline.log"
 PUBLISHER_LOG = LOG_DIR / "publisher.log"
 
-DB_PATH = REPO_ROOT / "datacaster.db"
+DB_PATH = Path(os.environ.get("DATACASTER_DB_PATH", REPO_ROOT / "data" / "datacaster.db"))
 
 # Telegram delivery for the programmable-editing wedge. When both env vars
 # are set, /api/highlights/reel posts the composed 9:16 reel + auto-generated

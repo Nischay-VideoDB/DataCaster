@@ -93,7 +93,7 @@ Why these numbers:
 worker has processed. A Stop mid-indexing leaves the marker behind; the
 next Start spawns the worker with `resume_from_offset_s = cached_offset`
 so it skips already-classified scenes. Combined with the bind-mounted
-`./datacaster.db`, indexing cost is paid once per video across rebuilds.
+`./data/datacaster.db`, indexing cost is paid once per video across rebuilds.
 
 The fully-indexed gate is `vod_offset >= video.length - 12`; once
 crossed, the rehydrate path skips classification entirely on the next

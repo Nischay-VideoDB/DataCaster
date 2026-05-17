@@ -11,9 +11,11 @@ services:
       - "8000:8000"
     env_file:
       - .env
-    # Bind-mount SQLite so events survive `make rebuild` / `--force-recreate`.
+    # Bind-mount the data directory so SQLite events survive `make rebuild`.
+    # Directory mount (not single-file) for cross-platform compat — Windows
+    # Docker creates a directory for missing single-file mounts, breaking sqlite.
     volumes:
-      - ./datacaster.db:/app/datacaster.db
+      - ./data:/app/data
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8000/api/health || exit 1"]

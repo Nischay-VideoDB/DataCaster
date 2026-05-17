@@ -180,7 +180,8 @@ async def highlight_indexer(stop: asyncio.Event) -> None:
 def _read_top_highlight_rows(limit: int = 6) -> list[dict[str, Any]]:
     """Direct sqlite read — we're already on a worker thread."""
     import sqlite3
-    with sqlite3.connect(pipeline.REPO_ROOT / "datacaster.db") as raw:
+    from .config import DB_PATH
+    with sqlite3.connect(DB_PATH) as raw:
         raw.row_factory = sqlite3.Row
         return [dict(r) for r in raw.execute(
             "SELECT * FROM highlights ORDER BY score DESC LIMIT ?", (limit,)

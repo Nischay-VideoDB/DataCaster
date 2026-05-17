@@ -20,7 +20,7 @@ docker compose ps
 curl -s localhost:8000/api/health | jq .pipeline
 
 # What's in the events DB right now?
-sqlite3 datacaster.db "SELECT video_id, event_type, COUNT(*) \
+sqlite3 data/datacaster.db "SELECT video_id, event_type, COUNT(*) \
                        FROM events GROUP BY video_id, event_type;"
 
 # Tail logs for both services
@@ -55,11 +55,11 @@ index started …` and nothing else after 8 minutes, see Section 4.
 table doesn't have rows for that `video_id`. Check:
 
 ```bash
-sqlite3 datacaster.db "SELECT COUNT(*) FROM events WHERE video_id = 'm-z-…';"
+sqlite3 data/datacaster.db "SELECT COUNT(*) FROM events WHERE video_id = 'm-z-…';"
 ```
 
 Zero rows means the previous run was wiped (manual SQL delete, Resync
-button, or a fresh `./datacaster.db` file).
+button, or a fresh `./data/datacaster.db` file).
 
 ---
 
@@ -268,7 +268,7 @@ next Start of the same video re-hydrates instantly. To wipe events for a
 specific video manually:
 
 ```bash
-sqlite3 datacaster.db "DELETE FROM events WHERE video_id = 'm-z-…';
+sqlite3 data/datacaster.db "DELETE FROM events WHERE video_id = 'm-z-…';
                        DELETE FROM commentary
                        WHERE event_id IN (SELECT id FROM events
                                           WHERE video_id = 'm-z-…');"
@@ -370,7 +370,7 @@ make rebuild
 
 ```bash
 docker compose down                 # stop containers
-rm -f datacaster.db                 # nuke the events DB
+rm -f data/datacaster.db            # nuke the events DB
 rm -f /tmp/videodb_events.jsonl     # nuke the JSONL tail
 docker compose build --no-cache     # rebuild images
 docker compose up -d                # start

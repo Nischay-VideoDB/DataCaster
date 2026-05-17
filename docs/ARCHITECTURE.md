@@ -58,8 +58,9 @@ endpoint-level detail see [`API.md`](API.md).
 ```
 
 Backend and frontend run as two Docker containers (`backend`, `frontend`)
-defined in `docker-compose.yml`. The SQLite DB (`./datacaster.db`) is
-bind-mounted into the backend at `/app/datacaster.db` so the per-`video_id`
+defined in `docker-compose.yml`. The SQLite DB lives at
+`./data/datacaster.db` (host) → `/app/data/datacaster.db` (container) via a
+directory bind-mount, so the per-`video_id`
 event cache survives every `make rebuild` / `docker compose up
 --force-recreate`.
 
@@ -233,7 +234,7 @@ vod.poll_scene_index_forever
        │   4. _Deduper.accept(): no same (event_type, team) within 30s
        │      (cross-team dedupe for goals to absorb replay angles)
        ▼
-db.insert_event(..., video_id=…)         ◄── persists to ./datacaster.db (bind-mount)
+db.insert_event(..., video_id=…)         ◄── persists to ./data/datacaster.db (bind-mount)
 db.set_state(f"vod_offset:{video_id}", scene.end)   ◄── resume marker
        │
        ▼

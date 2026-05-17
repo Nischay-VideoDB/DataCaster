@@ -85,7 +85,7 @@ open http://localhost:3000
 In the UI: pick **YouTube VOD** → paste a URL or pick a previously-
 uploaded video → Start. After ~3 minutes you'll see events stream into
 the timeline. **Re-loading the same video is instant** — events cache by
-`video_id` in `./datacaster.db` (bind-mounted) and the rehydrate path
+`video_id` in `./data/datacaster.db` (bind-mounted) and the rehydrate path
 returns immediately with zero SDK calls. Click **📲 Reel last 3** (top-
 right of the timeline) to compose a 9:16 highlight, generate a recap
 caption, and post it to Telegram.
