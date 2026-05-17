@@ -65,7 +65,7 @@ Two classifier modes ship: **football** (default) and **describe** (generic scen
 
 - **Backend** — FastAPI with async workers (VOD scene-poller, JSONL tailer for RTStream, commentary worker, highlight indexer)
 - **Frontend** — React 18 + Vite + TypeScript + Tailwind v4 + shadcn/ui
-- **Persistence** — SQLite at `./datacaster.db`, bind-mounted into the backend container so the per-`video_id` event cache survives every `make rebuild`
+- **Persistence** — SQLite at `./data/datacaster.db`, bind-mounted into the backend container so the per-`video_id` event cache survives every `make rebuild`
 - **Sandbox** — registered in a sidecar file; released on `/api/end_session`, lifespan shutdown, SIGTERM, and startup orphan sweep
 
 For the longer version, see [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
@@ -96,7 +96,7 @@ DataCaster/
 ├── frontend/            React 18 + Vite + TypeScript + Tailwind v4
 ├── scripts/             helper scripts (ws_listener, sandbox utilities)
 ├── docs/                ARCHITECTURE / API / OPERATIONS / SANDBOX / …
-├── docker-compose.yml   bind-mounts ./datacaster.db
+├── docker-compose.yml   bind-mounts ./data/datacaster.db
 ├── Makefile             convenience targets (up, down, rebuild, logs, …)
 ├── requirements.txt     hackathon-branch videodb + FastAPI + workers
 └── test-datacaster.py   end-to-end test runner (7 phases)
@@ -133,7 +133,7 @@ make smoke      # quick health check
 
 Open http://localhost:3000, pick a source (YouTube VOD or live RTSP/RTMP URL), click **Start**, and watch events stream in.
 
-`./datacaster.db` is bind-mounted into the backend, so cached events survive every rebuild. Click **Resync** in the UI to force a fresh classification, or delete `./datacaster.db` to wipe everything.
+`./data/datacaster.db` is bind-mounted into the backend, so cached events survive every rebuild. Click **Resync** in the UI to force a fresh classification, or delete `./data/datacaster.db` to wipe everything.
 
 ## Quickstart (local dev, no Docker)
 
