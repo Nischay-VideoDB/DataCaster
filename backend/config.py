@@ -7,6 +7,7 @@ import sys
 import tempfile
 from pathlib import Path
 from typing import Literal
+from urllib.parse import urlparse
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -120,5 +121,38 @@ def cors_origins() -> list[str]:
     """
     defaults = ("http://localhost:3000", "http://127.0.0.1:3000")
     configured = os.environ.get("DATACASTER_ALLOWED_ORIGINS", "")
-    extras = tuple(origin.strip().rstrip("/") for origin in configured.split(",") if origin.strip())
+    extras = tuple(_validated_origin(origin) for origin in configured.split(",")) if configured else ()
     return list(dict.fromkeys((*defaults, *extras)))
+
+
+def _validated_origin(value: str) -> str:
+    """Return one explicit HTTP(S) browser origin or fail closed.
+
+    CORS protects routes that can start paid VideoDB work.  A wildcard,
+    path, credential, or malformed value therefore is never a safe shortcut.
+    """
+    origin = value.strip()
+    if not origin or origin == "*" or any(character.isspace() for character in origin):
+        raise ValueError("DATACASTER_ALLOWED_ORIGINS must contain explicit HTTP(S) origins")
+
+    parsed = urlparse(origin)
+    try:
+        port = parsed.port
+    except ValueError as exc:
+        raise ValueError(f"invalid CORS origin: {origin!r}") from exc
+
+    if (
+        parsed.scheme not in {"http", "https"}
+        or not parsed.hostname
+        or parsed.username
+        or parsed.password
+        or parsed.params
+        or parsed.query
+        or parsed.fragment
+        or parsed.path not in {"", "/"}
+        or "*" in parsed.hostname
+        or (port is not None and not 1 <= port <= 65535)
+    ):
+        raise ValueError(f"invalid CORS origin: {origin!r}")
+
+    return origin.rstrip("/")

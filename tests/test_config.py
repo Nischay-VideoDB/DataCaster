@@ -23,3 +23,19 @@ class CorsOriginsTests(unittest.TestCase):
                 os.environ.pop("DATACASTER_ALLOWED_ORIGINS", None)
             else:
                 os.environ["DATACASTER_ALLOWED_ORIGINS"] = old
+
+    def test_wildcard_and_non_origins_are_rejected(self) -> None:
+        from backend.config import cors_origins
+
+        old = os.environ.get("DATACASTER_ALLOWED_ORIGINS")
+        try:
+            for invalid in ("*", "datacaster.vercel.app", "https://example.com/path", "ftp://example.com", "https://bad host"):
+                os.environ["DATACASTER_ALLOWED_ORIGINS"] = invalid
+                with self.subTest(invalid=invalid):
+                    with self.assertRaises(ValueError):
+                        cors_origins()
+        finally:
+            if old is None:
+                os.environ.pop("DATACASTER_ALLOWED_ORIGINS", None)
+            else:
+                os.environ["DATACASTER_ALLOWED_ORIGINS"] = old
