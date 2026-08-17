@@ -23,6 +23,6 @@ typing_extensions==4.15.0
 urllib3==2.7.0
 uvicorn==0.47.0
 uvloop==0.22.1; sys_platform != "win32"
-videodb @ git+https://github.com/Video-DB/videodb-python.git@hackathon
+videodb==0.5.1
 watchfiles==1.1.1
 websockets==16.0

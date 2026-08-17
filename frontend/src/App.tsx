@@ -18,6 +18,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 const ONBOARDING_KEY = "datacaster_seen";
 const DEV_KEY = "datacaster_dev";
+const SHOWCASE_MODE = import.meta.env.VITE_DEPLOYMENT_MODE === "showcase";
 
 function urlHasDev(): boolean {
   try {
@@ -29,6 +30,10 @@ function urlHasDev(): boolean {
 }
 
 export default function App() {
+  return SHOWCASE_MODE ? <PreparedDataShowcase /> : <InteractiveApp />;
+}
+
+function InteractiveApp() {
   const pipeline = usePipelineState(3000);
   const stats = useStats(3000);
   const [events, setEvents] = useState<DataCasterEvent[]>([]);
@@ -451,5 +456,42 @@ export default function App() {
         onSkip={skipTour}
       />
     </div>
+  );
+}
+
+/**
+ * Vercel hosts a replayable product walkthrough while the local FastAPI
+ * runtime still owns RTSP ingestion, process-local workers, SSE fanout, and
+ * Telegram delivery. Keeping those controls out of this deployment is safer
+ * than presenting an interactive UI whose actions cannot complete.
+ */
+function PreparedDataShowcase() {
+  return (
+    <main className="min-h-screen bg-zinc-950 px-4 py-10 text-zinc-100">
+      <section className="mx-auto max-w-5xl">
+        <p className="text-xs font-medium uppercase tracking-[0.22em] text-emerald-400">DataCaster showcase</p>
+        <h1 className="mt-3 text-4xl font-semibold tracking-tight">Replay a VideoDB-powered match analysis.</h1>
+        <p className="mt-4 max-w-3xl text-base leading-7 text-zinc-400">
+          This Vercel deployment presents a recorded, prepared-data walkthrough of DataCaster’s
+          VideoDB event detection, evidence playback, search, commentary, and highlight flow.
+        </p>
+
+        <div className="mt-8 aspect-video overflow-hidden rounded-xl border border-zinc-800 bg-black shadow-2xl">
+          <iframe
+            className="h-full w-full"
+            src="https://www.youtube-nocookie.com/embed/lR99z0Jel-4"
+            title="DataCaster VideoDB walkthrough"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+
+        <div className="mt-8 rounded-lg border border-amber-500/30 bg-amber-500/10 p-5 text-sm leading-6 text-amber-100">
+          <strong>Prepared-data mode:</strong> starting RTSP/RTMP or VOD ingest, long-running
+          workers, live SSE, and Telegram delivery are intentionally unavailable here. They require
+          durable job state and operator credentials, and remain available in the local runtime.
+        </div>
+      </section>
+    </main>
   );
 }

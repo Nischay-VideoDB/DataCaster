@@ -4,7 +4,9 @@ import type {
   PipelineState, SearchShot,
 } from "./types";
 
-const API_BASE = ""; // Vite proxies /api to backend
+// Empty keeps the Docker nginx and Vite dev proxy path. Set this at build
+// time when the static frontend is deployed separately from the API.
+const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/$/, "");
 
 async function jget<T>(path: string): Promise<T> {
   const r = await fetch(API_BASE + path);
@@ -93,7 +95,7 @@ export function useEventStream(onMessage: (m: BusMessage) => void) {
 
     const connect = () => {
       if (!alive) return;
-      es = new EventSource("/api/events");
+      es = new EventSource(`${API_BASE}/api/events`);
       const dispatch = (e: MessageEvent) => {
         try { cbRef.current(JSON.parse(e.data) as BusMessage); }
         catch { /* skip */ }

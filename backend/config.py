@@ -14,6 +14,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 # the OS temp dir on Windows (no /tmp). Override with VIDEODB_EVENTS_DIR.
 _DEFAULT_EVENTS_DIR = tempfile.gettempdir() if sys.platform == "win32" else "/tmp"
 EVENTS_DIR = Path(os.environ.get("VIDEODB_EVENTS_DIR", _DEFAULT_EVENTS_DIR))
+EVENTS_DIR.mkdir(parents=True, exist_ok=True)
 EVENTS_FILE = EVENTS_DIR / "videodb_events.jsonl"
 WS_ID_FILE = EVENTS_DIR / "videodb_ws_id"
 WS_PID_FILE = EVENTS_DIR / "videodb_ws_pid"
@@ -108,3 +109,16 @@ VOCAB_BY_MODE: dict[str, dict[str, str]] = {
 # Adding a mode = one line each in this tuple, VOCAB_BY_MODE, and prompts.VISUAL_PROMPTS.
 SUPPORTED_CONTENT_TYPES: tuple[str, ...] = ("football", "describe")
 DEFAULT_CONTENT_TYPE: str = "football"
+
+
+def cors_origins() -> list[str]:
+    """Return explicit browser origins allowed to call the API.
+
+    Docker's nginx proxy keeps the default local.  A separately hosted Vite
+    frontend must opt in through ``DATACASTER_ALLOWED_ORIGINS``; wildcard CORS
+    is intentionally never used because the API starts paid VideoDB work.
+    """
+    defaults = ("http://localhost:3000", "http://127.0.0.1:3000")
+    configured = os.environ.get("DATACASTER_ALLOWED_ORIGINS", "")
+    extras = tuple(origin.strip().rstrip("/") for origin in configured.split(",") if origin.strip())
+    return list(dict.fromkeys((*defaults, *extras)))

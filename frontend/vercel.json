@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "buildCommand": "VITE_DEPLOYMENT_MODE=showcase npm run build",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}

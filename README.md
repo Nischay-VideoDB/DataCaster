@@ -98,7 +98,7 @@ DataCaster/
 ├── docs/                ARCHITECTURE / API / OPERATIONS / SANDBOX / …
 ├── docker-compose.yml   bind-mounts ./data/datacaster.db
 ├── Makefile             convenience targets (up, down, rebuild, logs, …)
-├── requirements.txt     hackathon-branch videodb + FastAPI + workers
+├── requirements.txt     released VideoDB SDK + FastAPI + workers
 └── test-datacaster.py   end-to-end test runner (7 phases)
 ```
 
@@ -165,6 +165,21 @@ Set in `.env` — see `.env.example` for the full template.
 | `VOICE_MODEL` | `k2-fsa/OmniVoice` | TTS for commentary, sandbox-routed via `coll.generate_voice`. |
 | `TELEGRAM_BOT_TOKEN` | unset | Bot token from @BotFather. Required for reel delivery. |
 | `TELEGRAM_CHAT_ID` | unset | Numeric chat id (DM @userinfobot to find it). |
+| `DATACASTER_ALLOWED_ORIGINS` | localhost only | Comma-separated frontend origins when the API is hosted separately. |
+
+## Vercel showcase
+
+Deploy `frontend/` as the `datacaster` Vercel project. Its checked-in Vercel
+configuration builds a prepared-data showcase with the recorded VideoDB
+walkthrough and intentionally omits controls that require a local RTSP/RTMP
+connection, long-running worker, live SSE connection, or Telegram credentials.
+
+The current FastAPI runtime is still the local developer experience. Before
+turning its live workflow into a Vercel product surface, move the SQLite event
+cache and session state to Azure PostgreSQL and place durable ingest, polling,
+and delivery jobs behind Vercel’s supported queue/workflow primitives. Then set
+`VITE_API_BASE_URL` and `DATACASTER_ALLOWED_ORIGINS` for that Vercel API. Do
+not scale the existing SQLite-backed worker horizontally.
 
 ---
 

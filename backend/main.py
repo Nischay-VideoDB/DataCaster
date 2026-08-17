@@ -18,6 +18,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from . import db, pipeline, sandbox as sandbox_mod
+from .config import cors_origins
 from .classifier import tail_jsonl_forever
 from .commentary import commentary_worker
 from .highlights import highlight_indexer
@@ -76,7 +77,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="DataCaster", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=cors_origins(),
     allow_methods=["*"], allow_headers=["*"], allow_credentials=True,
 )
 app.include_router(lifecycle_routes.router)
