@@ -1,4 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-labelledby="title">
+  <title id="title">DataCaster</title>
   <!-- DataCaster favicon — same Radio glyph (lucide v1.16) used in the header
        to the left of the wordmark. Orange stroke (#EC5B16, sampled from the
        VideoDB wordmark) on a zinc-950 rounded square. -->
