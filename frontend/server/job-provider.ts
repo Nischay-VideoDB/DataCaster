@@ -38,7 +38,8 @@ export async function searchOwnedJob(job: AnalysisJob, query: string, threshold:
     throw new Error("JOB_NOT_READY");
   }
   const coll = await connect({ apiKey: apiKey() }).getCollection();
-  const result = await coll.legacySearch(
+  const video = await coll.getVideo(job.videoId);
+  const result = await video.legacySearch(
     query,
     SearchTypeValues.semantic,
     IndexTypeValues.scene,
@@ -47,10 +48,12 @@ export async function searchOwnedJob(job: AnalysisJob, query: string, threshold:
     undefined,
     undefined,
     "start",
-    undefined,
-    job.sceneIndexId,
   );
-  return result.getShots().slice(0, threshold).map((shot) => ({
+  return result.getShots()
+    .filter((shot) => shot.videoId === job.videoId)
+    .filter((shot) => !shot.sceneIndexId || shot.sceneIndexId === job.sceneIndexId)
+    .slice(0, threshold)
+    .map((shot) => ({
     rtstream_id: null,
     rtstream_name: null,
     start: Number(shot.start || 0),
@@ -58,7 +61,7 @@ export async function searchOwnedJob(job: AnalysisJob, query: string, threshold:
     text: String(shot.text || "VideoDB visual match"),
     score: shot.searchScore == null ? null : Number(shot.searchScore),
     stream_url: shot.streamUrl || job.highlightUrl || job.streamUrl,
-  }));
+    }));
 }
 
 export async function askOwnedJob(job: AnalysisJob, question: string, threshold: number) {

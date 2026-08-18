@@ -91,12 +91,17 @@ test("job-scoped compatibility routes cannot enumerate the shared collection or 
 });
 
 test("the live job routes enforce ownership and establish the compatibility current-job cookie", async () => {
-  const [create, read, ask] = await Promise.all([
+  const [create, read, ask, provider] = await Promise.all([
     readFile(resolve(frontendRoot, "routes/api/jobs.post.ts"), "utf8"),
     readFile(resolve(frontendRoot, "routes/api/jobs/[id].get.ts"), "utf8"),
     readFile(resolve(frontendRoot, "routes/api/jobs/[id]/ask.post.ts"), "utf8"),
+    readFile(resolve(frontendRoot, "server/job-provider.ts"), "utf8"),
   ]);
   assert.match(create, /rememberCurrentJob\(event, result\.job\.id\)/);
   assert.match(read, /findOwnedJob\(parsed\.data, clientHash\(event\.req\)\)/);
   assert.match(ask, /findOwnedJob\(id\.data, clientHash\(event\.req\)\)/);
+  assert.match(provider, /coll\.getVideo\(job\.videoId\)/);
+  assert.match(provider, /shot\.videoId === job\.videoId/);
+  assert.match(provider, /shot\.sceneIndexId === job\.sceneIndexId/);
+  assert.doesNotMatch(provider, /coll\.legacySearch/);
 });
