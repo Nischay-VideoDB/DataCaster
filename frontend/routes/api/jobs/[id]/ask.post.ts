@@ -1,8 +1,9 @@
 import { connect, IndexTypeValues, SearchTypeValues } from "videodb";
 import { defineEventHandler, getRouterParam, readBody, setResponseStatus } from "nitro/h3";
 import { z } from "zod";
-import { countQuestions, findJob, saveQuestion } from "../../../../server/db.js";
-import { safeProviderError } from "../../../../server/security.js";
+import { countQuestions, findOwnedJob, saveQuestion } from "../../../../server/db.js";
+import { clientHash, safeProviderError } from "../../../../server/security.js";
+import { rememberCurrentJob } from "../../../../server/compatibility.js";
 
 const schema = z.object({ question: z.string().trim().min(4).max(300) });
 
@@ -11,10 +12,11 @@ export default defineEventHandler(async (event) => {
   if (!id.success) { setResponseStatus(event, 400); return { error: "Invalid job id" }; }
   const body = schema.safeParse(await readBody(event));
   if (!body.success) { setResponseStatus(event, 400); return { error: "Ask a question between 4 and 300 characters." }; }
-  const job = await findJob(id.data);
+  const job = await findOwnedJob(id.data, clientHash(event.req));
   if (!job || job.status !== "completed" || !job.videoId) {
     setResponseStatus(event, 409); return { error: "The analysis must finish before you can ask about it." };
   }
+  rememberCurrentJob(event, job.id);
   if (await countQuestions(job.id) >= 5) {
     setResponseStatus(event, 429); return { error: "This public run has reached its limit of 5 questions." };
   }

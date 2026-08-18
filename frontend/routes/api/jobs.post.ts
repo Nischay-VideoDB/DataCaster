@@ -1,10 +1,7 @@
-import { randomUUID } from "node:crypto";
-import { start } from "workflow/api";
 import { defineEventHandler, readBody, setResponseStatus } from "nitro/h3";
 import { z } from "zod";
-import { analyzeMatch } from "../../workflows/analyze-match.js";
-import { assertWithinRateLimits, createJob, findIdempotentJob, updateJob } from "../../server/db.js";
-import { clientHash, defaultIdempotencyKey, validatePublicMediaUrl } from "../../server/security.js";
+import { rememberCurrentJob } from "../../server/compatibility.js";
+import { startDurableJob } from "../../server/start-job.js";
 
 const bodySchema = z.object({
   sourceUrl: z.string().min(1).max(2048),
@@ -15,23 +12,10 @@ const bodySchema = z.object({
 export default defineEventHandler(async (event) => {
   try {
     const body = bodySchema.parse(await readBody(event));
-    const sourceUrl = await validatePublicMediaUrl(body.sourceUrl);
-    const hash = clientHash(event.req);
-    const key = body.idempotencyKey || defaultIdempotencyKey(sourceUrl, body.mode);
-    const existing = await findIdempotentJob(hash, key);
-    if (existing) return { job: existing, reused: true };
-    await assertWithinRateLimits(hash);
-    const job = await createJob({
-      id: randomUUID(),
-      clientHash: hash,
-      idempotencyKey: key,
-      sourceUrl,
-      mode: body.mode,
-    });
-    const run = await start(analyzeMatch, [job.id, sourceUrl, body.mode]);
-    await updateJob(job.id, { workflowRunId: run.runId });
-    setResponseStatus(event, 202);
-    return { job: { ...job, workflowRunId: run.runId }, reused: false };
+    const result = await startDurableJob(event, body);
+    rememberCurrentJob(event, result.job.id);
+    if (!result.reused) setResponseStatus(event, 202);
+    return result;
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to start analysis";
     if (message === "CLIENT_RATE_LIMIT") {
