@@ -1,9 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "vite",
+  "framework": null,
   "buildCommand": "VITE_DEPLOYMENT_MODE=showcase npm run build",
-  "rewrites": [
-    { "source": "/favicon.ico", "destination": "/favicon.svg" },
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
+  "regions": ["iad1"],
+  "rewrites": [{ "source": "/favicon.ico", "destination": "/favicon.svg" }]
 }

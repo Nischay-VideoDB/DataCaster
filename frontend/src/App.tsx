@@ -12,6 +12,7 @@ import { StreamPanel } from "@/components/StreamPanel";
 import { api, mergeEvents, usePipelineState, useEventStream, useStats } from "@/lib/api";
 import { humanize } from "@/lib/errors";
 import { PREPARED_SESSION_MANIFEST } from "@/lib/prepared-sessions";
+import { PublicLiveAnalysis } from "@/components/PublicLiveAnalysis";
 import { readShareLink } from "@/lib/share";
 import type { DataCasterEvent } from "@/lib/types";
 import { AlertTriangle, Radio, Trash2 } from "lucide-react";
@@ -31,7 +32,23 @@ function urlHasDev(): boolean {
 }
 
 export default function App() {
-  return SHOWCASE_MODE ? <PreparedDataShowcase /> : <InteractiveApp />;
+  return SHOWCASE_MODE ? <PublicDeployment /> : <InteractiveApp />;
+}
+
+function PublicDeployment() {
+  const [view, setView] = useState<"live" | "prepared">("live");
+  return <div className="min-h-screen bg-zinc-950 text-zinc-100">
+    <header className="sticky top-0 z-50 border-b border-zinc-800 bg-zinc-950/95 px-4 py-3 backdrop-blur sm:px-6">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2"><Radio className="h-5 w-5 text-[#EC5B16]" /><strong>DataCaster</strong><span className="hidden text-xs text-zinc-500 sm:inline">real VideoDB match intelligence</span></div>
+        <nav className="flex rounded-lg border border-zinc-800 bg-zinc-900 p-1" aria-label="DataCaster modes">
+          <button type="button" onClick={() => setView("live")} aria-pressed={view === "live"} className={`rounded-md px-3 py-2 text-xs font-medium ${view === "live" ? "bg-[#EC5B16] text-white" : "text-zinc-400 hover:text-zinc-100"}`}>New analysis</button>
+          <button type="button" onClick={() => setView("prepared")} aria-pressed={view === "prepared"} className={`rounded-md px-3 py-2 text-xs font-medium ${view === "prepared" ? "bg-emerald-500 text-zinc-950" : "text-zinc-400 hover:text-zinc-100"}`}>Prepared examples</button>
+        </nav>
+      </div>
+    </header>
+    {view === "live" ? <PublicLiveAnalysis /> : <PreparedDataShowcase />}
+  </div>;
 }
 
 function InteractiveApp() {
@@ -460,12 +477,7 @@ function InteractiveApp() {
   );
 }
 
-/**
- * Vercel hosts a replayable product walkthrough while the local FastAPI
- * runtime still owns RTSP ingestion, process-local workers, SSE fanout, and
- * Telegram delivery. Keeping those controls out of this deployment is safer
- * than presenting an interactive UI whose actions cannot complete.
- */
+/** Prepared examples remain an additive, zero-wait path beside the live public workflow. */
 function PreparedDataShowcase() {
   const [selectedSessionId, setSelectedSessionId] = useState(
     PREPARED_SESSION_MANIFEST.sessions[0].id,
@@ -581,7 +593,7 @@ function PreparedDataShowcase() {
         </div>
 
         <section className="mt-8 rounded-xl border border-amber-500/30 bg-amber-500/10 p-5 text-sm leading-6 text-amber-100">
-          <strong>Ready to run live?</strong> Start the <a className="text-amber-50 underline underline-offset-2" href="https://github.com/Nischay-VideoDB/DataCaster#readme">documented local Docker workflow</a> to connect a VOD or RTSP source, let its durable local worker collect evidence, and compose a fresh highlight. Public prepared mode intentionally leaves provider credentials, uploads, long-running workers, live SSE, and Telegram delivery out of the deployment.
+          <strong>Want a fresh run?</strong> Choose <em>New analysis</em> above to submit a public VOD to the durable hosted workflow. RTSP broadcast monitoring and optional Telegram delivery remain available in the <a className="text-amber-50 underline underline-offset-2" href="https://github.com/Nischay-VideoDB/DataCaster#readme">documented operator runtime</a>; Telegram is not configured on this public deployment.
         </section>
       </section>
     </main>

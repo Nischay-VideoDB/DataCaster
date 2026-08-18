@@ -17,6 +17,5 @@ test("the public build has an accessible branded favicon and a default icon rout
   assert.match(favicon, /<title id="title">DataCaster<\/title>/);
   assert.deepEqual(JSON.parse(vercelConfig).rewrites, [
     { source: "/favicon.ico", destination: "/favicon.svg" },
-    { source: "/(.*)", destination: "/index.html" },
   ]);
 });

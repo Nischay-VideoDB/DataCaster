@@ -26,5 +26,7 @@ test("prepared showcase ships three frozen sessions with evidence, playback, and
   assert.match(app, /selected\.evidence\.map/);
   assert.match(app, /Open source VOD/);
   assert.match(app, /If the embedded player is unavailable/);
-  assert.match(app, /Ready to run live\?/);
+  assert.match(app, /Want a fresh run\?/);
+  assert.match(app, /New analysis/);
+  assert.match(app, /Prepared examples/);
 });

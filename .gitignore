@@ -43,3 +43,5 @@ build/
 # generated pitch assets (rebuild via scripts/build_pitch_deck.py)
 scripts/_pitch_assets/
 DataCaster_Pitch.pptx
+.vercel
+.env*
